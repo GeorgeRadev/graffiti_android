@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingTop="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="16dp"
+    tools:context=".Graffiti4Settings">
+
+    <TextView
+        android:id="@+id/text_view_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Instructions to set it up as keyboard\n         Step (1): Open Settings\n         Step (2): Goto Languages and input\n         Step (3): Goto Current Keyboard under Keyboard and input methods\n         Step (4): Goto Choose Keyboards\n         Step (5): Tap on Smart Switch Keyboard\n"
+        android:visibility="visible"
+        tools:visibility="visible" />
+
+    <EditText
+        android:id="@+id/editTextTextMultiLine_ID"
+        android:layout_width="395dp"
+        android:layout_height="175dp"
+        android:layout_below="@+id/text_view_id"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="14dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:text="text\nhere"
+        android:visibility="visible"
+        tools:visibility="visible" />
+
+
+</RelativeLayout>
