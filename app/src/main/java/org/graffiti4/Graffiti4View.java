@@ -5,10 +5,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.os.Build;
+import android.view.WindowManager;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
+
+import androidx.annotation.NonNull;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,10 +30,19 @@ public class Graffiti4View extends View {
     private final Paint brushWhite = new Paint();
     private final Path line = new Path();
 
-    private final DisplayMetrics displaymetrics = new DisplayMetrics();
+    private final Rect bounds;
 
     public Graffiti4View(Context context) {
         super(context);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+              bounds = getContext().getSystemService(WindowManager.class).getMaximumWindowMetrics().getBounds();
+        } else {
+            DisplayMetrics metrics = new DisplayMetrics();
+            getDisplay().getRealMetrics(metrics);
+            bounds = new Rect(0,0, metrics.widthPixels, metrics.heightPixels);
+        }
+
         brushWhite.setAntiAlias(true);
         brushWhite.setColor(Color.WHITE);
         brushWhite.setStrokeWidth(4f);
@@ -57,9 +71,8 @@ public class Graffiti4View extends View {
             return;
         }
 
-        getDisplay().getRealMetrics(displaymetrics);
-        int width = displaymetrics.widthPixels;
-        int height = displaymetrics.heightPixels;
+        int width = bounds.width();
+        int height = bounds.height();
 
         final int desiredWidth;
         final int desiredHeight;
@@ -85,10 +98,11 @@ public class Graffiti4View extends View {
         } else if (widthMode == MeasureSpec.AT_MOST) {
             //Can't be bigger than...
             width = Math.min(desiredWidth, widthSize);
-        } else {
-            //Be whatever you want
-            width = desiredWidth;
         }
+//        else {
+//            //Be whatever you want
+//            width = desiredWidth;
+//        }
 
         //Measure Height
         if (heightMode == MeasureSpec.EXACTLY) {
@@ -135,20 +149,10 @@ public class Graffiti4View extends View {
                 if (main != null) {
                     InputConnection input = main.getInputConnection();
                     if (input != null) {
-                        engine.gestureEnd((int) x, (int) y);
+                        engine.gestureEnd(x, y);
                         char code = engine.getGraffitiChar();
                         if (code != Graffiti4Engine.NULL_CHAR) {
-                            Graffiti4Engine.Dimension dimension = engine.getDimension();
-                            final Graffiti4Decode.Position position;
-                            if (dimension.maxX < middleWidth) {
-                                position = Graffiti4Decode.Position.LOWERCASE;
-                            } else if (dimension.minX > middleWidth) {
-                                position = Graffiti4Decode.Position.NUMBERS;
-                            } else {
-                                position = Graffiti4Decode.Position.UPPERCASE;
-                            }
-
-                            char c = Graffiti4Decode.decodeGraffiti(code, dotMode, position);
+                            char c = decodeToChar(code);
                             if (c > 0) {
                                 if (c == '.' && !dotMode) {
                                     dotMode = true;
@@ -175,11 +179,25 @@ public class Graffiti4View extends View {
         return true;
     }
 
+    private char decodeToChar(char code) {
+        Graffiti4Engine.Dimension dimension = engine.getDimension();
+        final Graffiti4Decode.Position position;
+        if (dimension.maxX < middleWidth) {
+            position = Graffiti4Decode.Position.LOWERCASE;
+        } else if (dimension.minX > middleWidth) {
+            position = Graffiti4Decode.Position.NUMBERS;
+        } else {
+            position = Graffiti4Decode.Position.UPPERCASE;
+        }
+
+        return Graffiti4Decode.decodeGraffiti(code, dotMode, position);
+    }
+
     private boolean dotMode = false;
-    private int[] point = new int[2];
+    private final int[] point = new int[2];
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         if (currentHeight > 40 && currentWidth > 80) {
             final int border = 20;
             canvas.drawRoundRect(border, border, currentWidth - border, currentHeight - border, border, border, brushWhite);
@@ -199,13 +217,13 @@ public class Graffiti4View extends View {
             canvas.drawPath(line, brushWhite);
 
             {
-                int i = 0, l = engine.getPointsCount();
+                int l = engine.getPointsCount();
                 if (l > 0) {
                     engine.getPoint(0, point);
                     line.reset();
                     line.moveTo(point[0], point[1]);
                 }
-                for (i = 1; i < l; i++) {
+                for (int i = 1; i < l; i++) {
                     engine.getPoint(i, point);
                     line.lineTo(point[0], point[1]);
                 }

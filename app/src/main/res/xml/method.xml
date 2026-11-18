@@ -1,5 +1,5 @@
 <input-method xmlns:android="http://schemas.android.com/apk/res/android"
-    android:settingsActivity="org.graffiti4.Graffiti4">
+    android:settingsActivity="org.graffiti4.Graffiti4Settings">
     <subtype
         android:icon="@drawable/ic_launcher_foreground"
         android:imeSubtypeLocale="en_US"

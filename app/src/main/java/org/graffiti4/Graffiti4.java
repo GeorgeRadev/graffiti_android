@@ -7,8 +7,6 @@ import android.view.inputmethod.InputConnection;
 
 public class Graffiti4 extends InputMethodService {
 
-    private InputConnection inputConnection;
-
     @Override
     public void onInitializeInterface() {
         super.onInitializeInterface();
@@ -22,20 +20,8 @@ public class Graffiti4 extends InputMethodService {
     }
 
     @Override
-    public View onCreateCandidatesView() {
-        return null;
-    }
-
-    @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
-        inputConnection = getCurrentInputConnection();
-    }
-
-    @Override
-    public void onFinishInput() {
-        inputConnection = null;
-        super.onFinishInput();
     }
 
     @Override
@@ -44,6 +30,6 @@ public class Graffiti4 extends InputMethodService {
     }
 
     InputConnection getInputConnection() {
-        return inputConnection;
+        return getCurrentInputConnection();
     }
 }
